@@ -204,7 +204,5 @@ Options:
 #Main entry point for application if used as main program
 #Calls main-method which controls flow of PyGrep with given arguments
 if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
     args = sys.argv[1:]
     sys.exit(main(args))
