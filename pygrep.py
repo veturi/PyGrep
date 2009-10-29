@@ -30,6 +30,43 @@ Exit status is 1 if error occurred during execution.
 
 protip: Try creating alias like alias pygrep="~/./pygrep.py" for more user
 friendly usage.
+
+System Tests:
+
+Example 0:
+command line call: pygrep.py test testing/test.txt
+>>> main(["test","testing/test.txt"])
+File: testing/test.txt
+test text
+0
+
+Example 1:
+command line call: pygrep.py -i Test testing/test.txt
+>>> main(["-i", "Test","testing/test.txt"])
+File: testing/test.txt
+test text
+0
+
+Example 2:
+command line call: pygrep.py -P Test testing/test.txt
+>>> main(["-P", "Test","testing/test.txt"])
+Traceback (most recent call last):
+...
+GetoptError: option -P not recognized
+
+Example 3:
+command line call: pygrep.py -i Test
+>>> main(["-i", "Test"])
+Traceback (most recent call last):
+...
+SystemExit: 1
+
+Example 4:
+command line call: pygrep.py -i
+>>> main(["-i"])
+Traceback (most recent call last):
+...
+SystemExit: 1
 """
 
 import sys
