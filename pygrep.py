@@ -59,10 +59,19 @@ class pygrepOptions(object):
 def grep(pattern, pg):
     """Search through given file(s) and/or standard input for matching patterns.
     Prints lines matching the pattern with given options.
+    
     Gets two arguments:
     'pattern' - Regular expression pattern
     'pg' - instance of pygrepOptions class.
+    
     returns 0 on successful execution
+    
+    Example 0:
+    >>> pg = pygrepOptions()
+    >>> pg.fileList = [open("testing/test.txt", "r")]
+    >>> grep("pattern", pg)
+    File: testing/test.txt
+    0
     """
     outputCount = 0
     
@@ -128,16 +137,7 @@ def handleFiles(args, pg):
     Traceback (most recent call last):
     ...
     SystemExit: 1
-    
-    Example 2 (wrong options object):
-    >>> pg = "wrongobject"
-    >>> handleFiles(["testing/test.txt"], pg)
-    Traceback (most recent call last):
-    ...
-    SystemExit: 1
     """
-    if not isinstance(pg, pygrepOptions):
-        sys.exit(1)
     
     if containsData():
         pg.fileList.append(sys.stdin)
@@ -187,12 +187,6 @@ def handleArgs(argv, pg):
     
     Example 4 (no input given):
     >>> handleArgs(["-v", "pattern"], pygrepOptions())
-    Traceback (most recent call last):
-    ...
-    SystemExit: 1
-    
-    Example 5 (false options object):
-    >>> handleArgs(["-v", "pattern", "testfile.txt"], 'falseObject')
     Traceback (most recent call last):
     ...
     SystemExit: 1
