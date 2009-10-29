@@ -115,7 +115,30 @@ def handleFiles(args, pg):
     """Handles opening given input(s).
     Binds file objects to an instance of pygrepOptions.
     Returns instance of pygrepOptions.
+    
+    Example 0:
+    >>> pg = pygrepOptions()
+    >>> x = handleFiles(["testing/test.txt"], pg)
+    >>> isinstance(x, type(pg))
+    True
+    
+    Example 1 (file doesn't exist):
+    >>> pg = pygrepOptions()
+    >>> handleFiles(["noFile.txt"], pg)
+    Traceback (most recent call last):
+    ...
+    SystemExit: 1
+    
+    Example 2 (wrong options object):
+    >>> pg = "wrongobject"
+    >>> handleFiles(["testing/test.txt"], pg)
+    Traceback (most recent call last):
+    ...
+    SystemExit: 1
     """
+    if not isinstance(pg, pygrepOptions):
+        sys.exit(1)
+    
     if containsData():
         pg.fileList.append(sys.stdin)
     for filename in args:
@@ -139,8 +162,10 @@ def handleArgs(argv, pg):
     Unit tests:
     
     Example 0:
-    >>> handleArgs(["-v", "pattern", "testing/test.txt"], pygrepOptions())
-    ("pattern", instance of pygrepOptions())
+    >>> pg = pygrepOptions()
+    >>> x,y = handleArgs(["-v", "pattern", "testing/test.txt"], pg)
+    >>> x == "pattern" and isinstance(y, type(pg))
+    True
     
     Example 1 (empty arguments list given):
     >>> handleArgs([], pygrepOptions())
