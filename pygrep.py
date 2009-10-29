@@ -30,6 +30,43 @@ Exit status is 1 if error occurred during execution.
 
 protip: Try creating alias like alias pygrep="~/./pygrep.py" for more user
 friendly usage.
+
+System Tests:
+
+Example 0:
+command line call: pygrep.py test testing/test.txt
+>>> main(["test","testing/test.txt"])
+File: testing/test.txt
+test text
+0
+
+Example 1:
+command line call: pygrep.py -i Test testing/test.txt
+>>> main(["-i", "Test","testing/test.txt"])
+File: testing/test.txt
+test text
+0
+
+Example 2:
+command line call: pygrep.py -P Test testing/test.txt
+>>> main(["-P", "Test","testing/test.txt"])
+Traceback (most recent call last):
+...
+GetoptError: option -P not recognized
+
+Example 3:
+command line call: pygrep.py -i Test
+>>> main(["-i", "Test"])
+Traceback (most recent call last):
+...
+SystemExit: 1
+
+Example 4:
+command line call: pygrep.py -i
+>>> main(["-i"])
+Traceback (most recent call last):
+...
+SystemExit: 1
 """
 
 import sys
@@ -37,6 +74,7 @@ import os
 import re
 import getopt
 import select
+
 
 class pygrepOptions(object):
     """This class contains all predefined variables required by PyGrep."""
@@ -54,13 +92,23 @@ class pygrepOptions(object):
         self.longOptions = ["ignore-case", "invert-match", "word-regexp" \
                             "only-matching", "Context=", "help"]
 
+
 def grep(pattern, pg):
     """Search through given file(s) and/or standard input for matching patterns.
     Prints lines matching the pattern with given options.
+    
     Gets two arguments:
     'pattern' - Regular expression pattern
     'pg' - instance of pygrepOptions class.
+    
     returns 0 on successful execution
+    
+    Example 0:
+    >>> pg = pygrepOptions()
+    >>> pg.fileList = [open("testing/test.txt", "r")]
+    >>> grep("pattern", pg)
+    File: testing/test.txt
+    0
     """
     outputCount = 0
     
@@ -101,17 +149,33 @@ def grep(pattern, pg):
                     outputCount += 1
     return 0
 
+
 def containsData():
     """ Check if sys.stdin is empty.
     Returns boolean value. True if not empty, False if empty.
     """
     return select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], [])
 
+
 def handleFiles(args, pg):
     """Handles opening given input(s).
     Binds file objects to an instance of pygrepOptions.
     Returns instance of pygrepOptions.
+    
+    Example 0:
+    >>> pg = pygrepOptions()
+    >>> x = handleFiles(["testing/test.txt"], pg)
+    >>> isinstance(x, type(pg))
+    True
+    
+    Example 1 (file doesn't exist):
+    >>> pg = pygrepOptions()
+    >>> handleFiles(["noFile.txt"], pg)
+    Traceback (most recent call last):
+    ...
+    SystemExit: 1
     """
+    
     if containsData():
         pg.fileList.append(sys.stdin)
     for filename in args:
@@ -123,6 +187,7 @@ def handleFiles(args, pg):
         pg.fileList.append(f)
     return pg
 
+
 def handleArgs(argv, pg):
     """Handles parsing and handlingoptions from given list of arguments and
     returns two different values.
@@ -130,7 +195,42 @@ def handleArgs(argv, pg):
     pygrepOptions object.
     Checks if required regexp pattern and input are given and if not
     stops execution with exit value of 1.
+    
+    Unit tests:
+    
+    Example 0:
+    >>> pg = pygrepOptions()
+    >>> x,y = handleArgs(["-v", "pattern", "testing/test.txt"], pg)
+    >>> x == "pattern" and isinstance(y, type(pg))
+    True
+    
+    Example 1 (empty arguments list given):
+    >>> handleArgs([], pygrepOptions())
+    Traceback (most recent call last):
+    ...
+    SystemExit: 1
+    
+    Example 2 (no pattern given):
+    >>> handleArgs(["-v"], pygrepOptions())
+    Traceback (most recent call last):
+    ...
+    SystemExit: 1
+    
+    Example 3 (wrong option P in args):
+    >>> handleArgs(["-vP", "pattern", "/tests/test.txt"], pygrepOptions())
+    Traceback (most recent call last):
+    ...
+    GetoptError: option -P not recognized
+    
+    Example 4 (no input given):
+    >>> handleArgs(["-v", "pattern"], pygrepOptions())
+    Traceback (most recent call last):
+    ...
+    SystemExit: 1
     """
+    if not isinstance(pg, pygrepOptions):
+        sys.exit(1)
+    
     opts, args = getopt.getopt(argv, pg.shortOptions, pg.longOptions)
     
     #Handle given options.
@@ -173,16 +273,18 @@ def handleArgs(argv, pg):
     
     return args[0], pg
 
+
 def main(argv):
     """ Main method for PyGrep. Controls flow of program when called
     as main module.
-    Receives list of arguments as argument 'argv'
+    Receives list of arguments as argument 'argv'    
     """
     pg = pygrepOptions()
     pattern, pg = handleArgs(argv, pg)
     
     return grep(pattern, pg)
     
+
 def help():
     """Prints instructions to user."""
     print """\nUsage:
@@ -200,6 +302,7 @@ Options:
        option this has no effect and a warning is given.
     -h --help: Prints help and instructions for user
     """ % sys.argv[0]
+
 
 #Main entry point for application if used as main program
 #Calls main-method which controls flow of PyGrep with given arguments
