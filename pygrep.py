@@ -38,6 +38,7 @@ import re
 import getopt
 import select
 
+
 class pygrepOptions(object):
     """This class contains all predefined variables required by PyGrep."""
     def __init__(self):
@@ -53,6 +54,7 @@ class pygrepOptions(object):
         self.shortOptions = "ivwoC:h"
         self.longOptions = ["ignore-case", "invert-match", "word-regexp" \
                             "only-matching", "Context=", "help"]
+
 
 def grep(pattern, pg):
     """Search through given file(s) and/or standard input for matching patterns.
@@ -101,11 +103,13 @@ def grep(pattern, pg):
                     outputCount += 1
     return 0
 
+
 def containsData():
     """ Check if sys.stdin is empty.
     Returns boolean value. True if not empty, False if empty.
     """
     return select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], [])
+
 
 def handleFiles(args, pg):
     """Handles opening given input(s).
@@ -123,6 +127,7 @@ def handleFiles(args, pg):
         pg.fileList.append(f)
     return pg
 
+
 def handleArgs(argv, pg):
     """Handles parsing and handlingoptions from given list of arguments and
     returns two different values.
@@ -130,7 +135,46 @@ def handleArgs(argv, pg):
     pygrepOptions object.
     Checks if required regexp pattern and input are given and if not
     stops execution with exit value of 1.
+    
+    Unit tests:
+    
+    Example 0:
+    >>> handleArgs(["-v", "pattern", "testing/test.txt"], pygrepOptions())
+    ("pattern", instance of pygrepOptions())
+    
+    Example 1 (empty arguments list given):
+    >>> handleArgs([], pygrepOptions())
+    Traceback (most recent call last):
+    ...
+    SystemExit: 1
+    
+    Example 2 (no pattern given):
+    >>> handleArgs(["-v"], pygrepOptions())
+    Traceback (most recent call last):
+    ...
+    SystemExit: 1
+    
+    Example 3 (wrong option P in args):
+    >>> handleArgs(["-vP", "pattern", "/tests/test.txt"], pygrepOptions())
+    Traceback (most recent call last):
+    ...
+    GetoptError: option -P not recognized
+    
+    Example 4 (no input given):
+    >>> handleArgs(["-v", "pattern"], pygrepOptions())
+    Traceback (most recent call last):
+    ...
+    SystemExit: 1
+    
+    Example 5 (false options object):
+    >>> handleArgs(["-v", "pattern", "testfile.txt"], 'falseObject')
+    Traceback (most recent call last):
+    ...
+    SystemExit: 1
     """
+    if not isinstance(pg, pygrepOptions):
+        sys.exit(1)
+    
     opts, args = getopt.getopt(argv, pg.shortOptions, pg.longOptions)
     
     #Handle given options.
@@ -173,16 +217,18 @@ def handleArgs(argv, pg):
     
     return args[0], pg
 
+
 def main(argv):
     """ Main method for PyGrep. Controls flow of program when called
     as main module.
-    Receives list of arguments as argument 'argv'
+    Receives list of arguments as argument 'argv'    
     """
     pg = pygrepOptions()
     pattern, pg = handleArgs(argv, pg)
     
     return grep(pattern, pg)
     
+
 def help():
     """Prints instructions to user."""
     print """\nUsage:
@@ -200,6 +246,7 @@ Options:
        option this has no effect and a warning is given.
     -h --help: Prints help and instructions for user
     """ % sys.argv[0]
+
 
 #Main entry point for application if used as main program
 #Calls main-method which controls flow of PyGrep with given arguments
